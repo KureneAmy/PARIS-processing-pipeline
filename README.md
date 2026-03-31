@@ -268,19 +268,10 @@ The pipeline operates in two distinct modes based on your analysis goals:
         ```bash
         cd /path/to/PARIS/
 
-        # For structure mode analysis
         snakemake -s PARIS.smk \
                   --cores 8 \
                   --use-singularity \
                   --singularity-args "--bind /path/to/PARIS/"
-
-        # Alternative: with job submission on clusters
-        snakemake -s PARIS.smk \
-                  --cores 8 \
-                  --use-singularity \
-                  --singularity-args "--bind /path/to/PARIS/" \
-                  --cluster "qsub -q queue_name" \
-                  --jobs 5
         ```
       
    * **Command Parameters**
