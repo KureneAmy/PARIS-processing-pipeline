@@ -380,7 +380,16 @@ The pipeline operates in two distinct modes based on your analysis goals:
       - **`multiqc_report.html`**: Open in a web browser to explore all sections interactively.
 
         - **General Statistics**: Combined table summarizing important metrics for each sample.
+          <img width="922" height="289" alt="2 multiqc general" src="https://github.com/user-attachments/assets/93a4830a-376d-46a0-91f6-a6d98fdfcda8" />
+
         - **FastQC**: Quality-control metrics on raw and trimmed reads, including per-base quality, sequence composition, and length distribution.
+          <img width="910" height="531" alt="5 multiqc fastqc" src="https://github.com/user-attachments/assets/c0160526-9c95-44c2-bc43-dc12e82dde89" />
+
+        - **STAR**: Show summary statistics from the STAR alignment and alignment scores using STAR.
+          <img width="2153" height="712" alt="3 multiqc STAR" src="https://github.com/user-attachments/assets/98586f93-794e-41cb-ac7f-116048362a29" />
+
+        - **Trimmomatic**: Details the number of reads before and after trimming.
+          <img width="912" height="459" alt="4 multiqc Trimmomatic" src="https://github.com/user-attachments/assets/90679fcb-1854-4023-83bd-105affef9087" />
      
       - **`{sample}_{starGenome|starSmallRNA}_Aligned.sortedByCoord.out.bam`**
 
@@ -400,10 +409,22 @@ The pipeline operates in two distinct modes based on your analysis goals:
           ```
         - **Application**: Represents structural elements or interaction pairs; core analysis result.
 
+          ```
+          # DG.geometric example
+          Group 68 == position chr21(+):8212578-8212608|chr21(+):8214225-8214259, type: isCollapsed, support 2
+            SRR2814763.21971837
+            SRR2814763.28918807
+          Group 51 == position chr21(+):8215418-8215440|chr21(+):8215484-8215506, type: isCollapsed, support 2
+            SRR2814763.15786345
+            SRR2814763.1593021
+          ```
+
       - **`{sample}_DG.bed`** (Structure mode only)
 
         - **Content**: Duplex group coordinates in BED12 format, compatible with genome browsers.
         - **Application**: Visualization in UCSC Genome Browser or IGV.
+       
+          <img width="807" height="345" alt="6 igv_panel" src="https://github.com/user-attachments/assets/21cc9622-1eec-4962-920a-c74042beb410" />
 
       - **`{sample}_NGmin.sam`** (Structure mode only)
 
