@@ -111,7 +111,7 @@ The pipeline operates in two distinct modes based on your analysis goals:
       gunzip gencode.v48.basic.annotation.gtf.gz
 
       # Build STAR index (this takes significant time and memory)
-      singularity exec ../../../paris.sif STAR --runMode genomeGenerate \
+      singularity exec ../../paris.sif STAR --runMode genomeGenerate \
         --genomeDir star_genome_index \
         --genomeFastaFiles GRCh38.primary_assembly.genome.fa \
         --runThreadN 16 \
