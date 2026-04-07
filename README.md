@@ -131,7 +131,20 @@ The pipeline operates in two distinct modes based on your analysis goals:
       # For pre-demultiplexed data, ensure files are named: {sample}.fastq.gz
       ```
 
-6.   **Required File Structure**
+6.  **Check execution permission**: You will need execution permission for file "/path/to/scripts/icSHAPE-master/bin/readCollapse". Please ensure it before running the pipeline.
+
+      ```bash
+      # Check current file permissions (look for 'x' in the output)
+	  ls -l "/path/to/scripts/icSHAPE-master/bin/readCollapse"
+		
+	  # Add executable permission for all users (owner, group, others)
+	  chmod +x "/path/to/scripts/icSHAPE-master/bin/readCollapse"
+		
+	  # Alternative: Add executable permission only for the owner (more secure)
+	  # chmod u+x "/path/to/scripts/icSHAPE-master/bin/readCollapse"
+      ```
+
+7.   **Required File Structure**
 
       ```bash
       root/
