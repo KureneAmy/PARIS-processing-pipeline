@@ -118,7 +118,7 @@ The pipeline operates in two distinct modes based on your analysis goals:
         --sjdbGTFfile gencode.v48.basic.annotation.gtf
       ```
 
-5.  **Data Preparation**: Download raw FASTQ data from SRA database.
+5.  **Data Preparation**: The test data run by this pipeline is from SRR2814763 in the SRA database. Download raw FASTQ data from SRA database.
 
       ```bash
       mkdir -p data/samples
