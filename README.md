@@ -19,6 +19,7 @@ The pipeline operates in two distinct modes based on your analysis goals:
 
       * 8-core CPU (16+ cores recommended)
       * 24 GB RAM (48+ GB recommended for large datasets)
+      _If the pipeline was killed, try increasing the number of CPU cores used._
 
 2.  **Singularity**: Must be installed on your system. Below are the detailed steps for installing on an Ubuntu 22.0.4 system. For other operating systems, please refer to the official installation guide: [https://docs.sylabs.io/guides/3.0/user-guide/installation.html](https://docs.sylabs.io/guides/3.0/user-guide/installation.html)
 
