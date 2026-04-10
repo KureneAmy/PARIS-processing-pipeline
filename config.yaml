@@ -97,6 +97,34 @@ rna_intrxn_visualization:
       label2: "Human 45S rRNA"
       
 
+# ============================================================
+# Report Configuration
+# ============================================================
+report:
+  # Enable / disable automatic report generation (default: true)
+  enable: true
+
+  # Report mode: inherits from top-level "mode" by default.
+  # Set explicitly to override (structure / interaction).
+  # mode: "interaction"
+
+  # Report metadata
+  title: "PARIS Analysis Report"   # Report title shown in the header
+  author: ""                        # Author name (optional)
+  institution: ""                   # Institution name (optional)
+  pi_name: ""                       # PI name (optional)
+  project_id: ""                    # Project identifier (optional)
+
+  # Inline images: embed figures as base64 data URIs in the HTML report.
+  # When true, the HTML file is fully self-contained and can be opened offline.
+  # When false, images are referenced by relative paths (suitable for zipped distributions).
+  inline_images: false
+
+  # Output file paths (optional; defaults to <work_dir>/report_<mode>.html/md)
+  # output_html: "/path/to/custom_report.html"
+  # output_md:   "/path/to/custom_report.md"
+
+
 # Directory structure created by pipeline:
 # output/
 # ├── logs/                          # All log files
@@ -110,15 +138,22 @@ rna_intrxn_visualization:
 # │   │   ├── {sample}_fastqc.html
 # │   │   └── {sample}_trim5_fastqc.html
 # │   └── multiqc_report.html
-# └── {sample}/                      # Sample outputs
-#     ├── {sample}_trim3.fastq
-#     ├── {sample}_trim3_nodup.fastq
-#     ├── {sample}_trim5.fastq
-#     ├── {sample}_starGenome_Aligned.sortedByCoord.out.bam
-#     ├── {sample}_starGenome_Aligned.sortedByCoord.out.bam.bai
-#     ├── {sample}_starGenome_Chimeric.out.junction
-#     ├── {sample}_DG.geometric
-#     ├── {sample}_DG.geometricsam
-#     ├── {sample}_NGmin.sam
-#     ├── {sample}_DG.bed
-#     └── {sample}.alt
+# ├── {sample}/                      # Sample outputs
+# │   ├── {sample}_trim3.fastq
+# │   ├── {sample}_trim3_nodup.fastq
+# │   ├── {sample}_trim5.fastq
+# │   ├── {sample}_starGenome_Aligned.sortedByCoord.out.bam   [structure]
+# │   ├── {sample}_starGenome_Aligned.sortedByCoord.out.bam.bai [structure]
+# │   ├── {sample}_starGenome_Chimeric.out.junction            [structure]
+# │   ├── {sample}_DG.geometric                               [structure]
+# │   ├── {sample}_DG.geometricsam                            [structure]
+# │   ├── {sample}_NGmin.sam                                  [structure]
+# │   ├── {sample}_DG.bed                                     [structure]
+# │   ├── {sample}.alt                                        [structure]
+# │   ├── {sample}_starSmallRNA_Chimeric.out.junction          [interaction]
+# │   ├── {sample}_interactions.geometric                     [interaction]
+# │   └── {sample}_interactions.filtered                      [interaction]
+# ├── report_structure.html          # HTML report (structure mode)
+# ├── report_structure.md            # Markdown report (structure mode)
+# ├── report_interaction.html        # HTML report (interaction mode)
+# └── report_interaction.md          # Markdown report (interaction mode)

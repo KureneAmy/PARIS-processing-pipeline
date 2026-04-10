@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ report_title }}</title>
+  <style>
+    /* ------------------------------------------------------------------ */
+    /* Reset & base                                                         */
+    /* ------------------------------------------------------------------ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 14px;
+      color: #2c3e50;
+      background: #f4f6f9;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    a { color: #1a73e8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ------------------------------------------------------------------ */
+    /* Top navigation bar                                                   */
+    /* ------------------------------------------------------------------ */
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    header.topbar .brand {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    header.topbar .brand span { color: #90caf9; }
+    header.topbar .meta {
+      font-size: 12px;
+      opacity: 0.85;
+      text-align: right;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Layout: sidebar + main + info-panel                                  */
+    /* ------------------------------------------------------------------ */
+    .layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Left sidebar nav */
+    nav.sidebar {
+      width: 210px;
+      min-width: 210px;
+      background: #fff;
+      border-right: 1px solid #dde3ed;
+      padding: 20px 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    nav.sidebar .nav-section {
+      padding: 6px 16px 2px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #90a4ae;
+    }
+    nav.sidebar a {
+      display: block;
+      padding: 7px 20px;
+      color: #455a64;
+      font-size: 13px;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    nav.sidebar a:hover,
+    nav.sidebar a.active {
+      background: #e3f2fd;
+      border-left-color: #1565c0;
+      color: #0d47a1;
+      text-decoration: none;
+    }
+
+    /* Main content */
+    main.content {
+      flex: 1;
+      padding: 28px 32px;
+      max-width: 960px;
+    }
+
+    /* Right info panel */
+    aside.info-panel {
+      width: 240px;
+      min-width: 240px;
+      background: #fff;
+      border-left: 1px solid #dde3ed;
+      padding: 20px 16px;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    aside.info-panel h3 {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #90a4ae;
+      margin-bottom: 12px;
+    }
+    aside.info-panel .meta-item {
+      margin-bottom: 12px;
+    }
+    aside.info-panel .meta-label {
+      font-size: 11px;
+      color: #78909c;
+      font-weight: 600;
+    }
+    aside.info-panel .meta-value {
+      font-size: 13px;
+      color: #2c3e50;
+      word-break: break-word;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Section headings                                                     */
+    /* ------------------------------------------------------------------ */
+    section { margin-bottom: 36px; }
+    section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0d47a1;
+      border-bottom: 2px solid #1565c0;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+    }
+    section h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1565c0;
+      margin: 16px 0 8px;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Cards / boxes                                                        */
+    /* ------------------------------------------------------------------ */
+    .card {
+      background: #fff;
+      border: 1px solid #dde3ed;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #546e7a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    /* KPI / stat cards row */
+    .kpi-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      flex: 1 1 160px;
+      background: #fff;
+      border: 1px solid #dde3ed;
+      border-top: 3px solid #1565c0;
+      border-radius: 6px;
+      padding: 14px 16px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .kpi-card .kpi-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0d47a1;
+    }
+    .kpi-card .kpi-label {
+      font-size: 12px;
+      color: #78909c;
+      margin-top: 4px;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Tables — general                                                     */
+    /* ------------------------------------------------------------------ */
+    .tbl-wrap { overflow-x: auto; margin-bottom: 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #e3f2fd;
+      color: #1565c0;
+      font-weight: 600;
+      padding: 9px 12px;
+      text-align: left;
+      border-bottom: 2px solid #90caf9;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(even) { background: #f8fbff; }
+    tbody td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8edf3;
+      vertical-align: top;
+    }
+    tbody tr:hover { background: #e3f2fd; }
+
+    /* ------------------------------------------------------------------ */
+    /* Booktabs-style three-line QC table (no vertical lines)              */
+    /* ------------------------------------------------------------------ */
+    .booktabs {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 13px;
+    }
+    .booktabs thead tr:first-child th {
+      border-top: 2px solid #2c3e50;
+      border-bottom: 1.5px solid #2c3e50;
+      background: transparent;
+      color: #2c3e50;
+      font-weight: 700;
+      padding: 8px 14px;
+      text-align: left;
+    }
+    .booktabs tbody td {
+      border: none;
+      padding: 7px 14px;
+      color: #2c3e50;
+    }
+    .booktabs tbody tr:last-child td {
+      border-bottom: 2px solid #2c3e50;
+    }
+    .booktabs tbody tr:nth-child(even) { background: #f8fbff; }
+    .booktabs tbody tr:hover { background: #e3f2fd; }
+
+    /* ------------------------------------------------------------------ */
+    /* Badges                                                               */
+    /* ------------------------------------------------------------------ */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-pass  { background: #e8f5e9; color: #2e7d32; }
+    .badge-warn  { background: #fff8e1; color: #f57f17; }
+    .badge-low   { background: #ffebee; color: #c62828; }
+    .badge-info  { background: #e3f2fd; color: #1565c0; }
+
+    /* ------------------------------------------------------------------ */
+    /* Collapsible details                                                  */
+    /* ------------------------------------------------------------------ */
+    details {
+      border: 1px solid #dde3ed;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    details summary {
+      cursor: pointer;
+      padding: 10px 16px;
+      font-weight: 600;
+      color: #1565c0;
+      user-select: none;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before {
+      content: "▶ ";
+      font-size: 10px;
+      color: #90a4ae;
+    }
+    details[open] summary::before { content: "▼ "; }
+    details .details-body { padding: 12px 16px 16px; }
+
+    /* ------------------------------------------------------------------ */
+    /* Figures / images                                                     */
+    /* ------------------------------------------------------------------ */
+    figure {
+      margin: 12px 0;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #dde3ed;
+      border-radius: 4px;
+    }
+    figcaption {
+      font-size: 12px;
+      color: #78909c;
+      margin-top: 6px;
+    }
+    .no-figure {
+      background: #f8fbff;
+      border: 1px dashed #b0bec5;
+      border-radius: 4px;
+      padding: 20px;
+      text-align: center;
+      color: #90a4ae;
+      font-style: italic;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Misc utilities                                                       */
+    /* ------------------------------------------------------------------ */
+    .text-muted  { color: #78909c; }
+    .text-center { text-align: center; }
+    .mt-8  { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    p { line-height: 1.6; margin-bottom: 10px; }
+    ul, ol { padding-left: 20px; line-height: 1.8; }
+    code {
+      background: #f0f4f8;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: "Consolas", monospace;
+      font-size: 12px;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Footer                                                               */
+    /* ------------------------------------------------------------------ */
+    footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 12px;
+      color: #90a4ae;
+      background: #fff;
+      border-top: 1px solid #dde3ed;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Responsive                                                           */
+    /* ------------------------------------------------------------------ */
+    @media (max-width: 900px) {
+      nav.sidebar, aside.info-panel { display: none; }
+      main.content { max-width: 100%; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===================================================================== -->
+<!-- Top navigation bar                                                     -->
+<!-- ===================================================================== -->
+<header class="topbar">
+  <div class="brand">Easy<span>Omics</span> &nbsp;|&nbsp; PARIS Analysis Pipeline &mdash; Interaction Mode</div>
+  <div class="meta">
+    {{ report_title }}<br>
+    Report Date: {{ report_date }}
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ================================================================== -->
+  <!-- Left sidebar                                                        -->
+  <!-- ================================================================== -->
+  <nav class="sidebar">
+    <div class="nav-section">Overview</div>
+    <a href="#summary">Executive Summary</a>
+    <a href="#params">Pipeline Parameters</a>
+    <div class="nav-section">Quality Control</div>
+    <a href="#qc">QC Metrics</a>
+    <div class="nav-section">Results</div>
+    <a href="#interactions">Interaction Analysis</a>
+    <a href="#intrxn-network">Interaction Network</a>
+    <a href="#intrxn-vis">Arc Diagrams</a>
+    <div class="nav-section">Report</div>
+    <a href="#files">Output Files</a>
+    <a href="#methods">Methods</a>
+  </nav>
+
+  <!-- ================================================================== -->
+  <!-- Main content                                                        -->
+  <!-- ================================================================== -->
+  <main class="content">
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 1. Executive Summary                                              -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="summary">
+      <h2>Executive Summary</h2>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-value">{{ num_samples }}</div>
+          <div class="kpi-label">Samples Analysed</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ avg_mapping_rate }}</div>
+          <div class="kpi-label">Avg Mapping Rate</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ total_interaction_pairs }}</div>
+          <div class="kpi-label">Total Interaction Pairs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ total_unique_rna_pairs }}</div>
+          <div class="kpi-label">Unique RNA Pairs</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Analysis Overview</div>
+        <p>
+          This report summarises the results of PARIS (Psoralen Analysis of RNA Interactions and
+          Structures) sequencing data processed through the <strong>EasyOmics PARIS pipeline</strong>
+          in <strong>interaction</strong> mode.
+          The analysis identifies intermolecular RNA interactions from chimeric reads by mapping to
+          a small RNA reference, enabling discovery of RNA–RNA interaction networks.
+        </p>
+        <p>
+          A total of <strong>{{ num_samples }}</strong> sample(s) were processed.
+          Reads were adapter-trimmed, deduplicated, and mapped to the small RNA reference using
+          <strong>STAR</strong> with unique mapping (chimSegmentMin={{ chim_segment_min | default(15) }}).
+          Interaction pairs were assembled using <strong>samPairingCalling</strong> and filtered
+          to retain only inter-molecular events.
+        </p>
+        {% if institution %}
+        <p class="text-muted">Institution: {{ institution }}{% if pi_name %} &nbsp;|&nbsp; PI: {{ pi_name }}{% endif %}</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 2. Pipeline Parameters                                            -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="params">
+      <h2>Pipeline Parameters</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Parameter</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            {{ pipeline_params_rows }}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 3. QC Metrics (booktabs three-line table)                        -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="qc">
+      <h2>Data Quality Assessment</h2>
+
+      {% for sample_name, sample_data in per_sample.items() %}
+      <h3>Sample: {{ sample_name }}</h3>
+      <details open>
+        <summary>Read Processing &amp; Alignment QC</summary>
+        <div class="details-body">
+          <div class="tbl-wrap">
+            <table class="booktabs">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ sample_data.qc_rows }}
+              </tbody>
+            </table>
+          </div>
+          {% if sample_data.qc_status %}
+          <p class="mt-8">
+            Alignment status:
+            {% if sample_data.mapping_rate_pct is not none and sample_data.mapping_rate_pct >= 70 %}
+            <span class="badge badge-pass">PASS</span>
+            {% elif sample_data.mapping_rate_pct is not none and sample_data.mapping_rate_pct >= 40 %}
+            <span class="badge badge-warn">WARN</span>
+            {% elif sample_data.mapping_rate_pct is not none %}
+            <span class="badge badge-low">LOW</span>
+            {% else %}
+            <span class="badge badge-info">N/A</span>
+            {% endif %}
+          </p>
+          {% endif %}
+        </div>
+      </details>
+      {% endfor %}
+
+      {% if not per_sample %}
+      <div class="card text-muted text-center">No sample QC data available.</div>
+      {% endif %}
+
+      <h3>Sample QC Overview</h3>
+      <div class="tbl-wrap">
+        <table class="booktabs">
+          <thead>
+            <tr>
+              <th>Sample</th>
+              <th>Total Reads</th>
+              <th>Clean Reads</th>
+              <th>Uniquely Mapped</th>
+              <th>Mapping Rate</th>
+              <th>Chimeric Reads</th>
+              <th>Duplication Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ qc_summary_rows }}
+          </tbody>
+        </table>
+      </div>
+
+      {% if multiqc_report %}
+      <div class="card mt-16">
+        <div class="card-title">MultiQC Report</div>
+        <p>
+          A comprehensive MultiQC report aggregating FastQC results for all samples is available at:<br>
+          <code>{{ multiqc_report }}</code>
+        </p>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 4. Interaction Analysis                                           -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="interactions">
+      <h2>Interaction Analysis</h2>
+      <div class="card">
+        <div class="card-title">About RNA–RNA Interactions</div>
+        <p>
+          In interaction mode, PARIS captures intermolecular RNA–RNA contacts through psoralen
+          crosslinking. Chimeric reads spanning two different RNA molecules are identified and
+          assembled into duplex groups that represent authentic RNA interactions.
+          Only trans-interactions (between different RNA species) are retained after filtering.
+        </p>
+      </div>
+
+      {% for sample_name, sample_data in per_sample.items() %}
+      <h3>Sample: {{ sample_name }}</h3>
+
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-value">{{ sample_data.interaction_pairs | default('N/A') }}</div>
+          <div class="kpi-label">Interaction Pairs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ sample_data.unique_rna_pairs | default('N/A') }}</div>
+          <div class="kpi-label">Unique RNA Pairs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ sample_data.top_rna1 | default('—') }}</div>
+          <div class="kpi-label">Most Frequent RNA (arm 1)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ sample_data.top_rna2 | default('—') }}</div>
+          <div class="kpi-label">Most Frequent RNA (arm 2)</div>
+        </div>
+      </div>
+
+      <details open>
+        <summary>Interaction Statistics</summary>
+        <div class="details-body">
+          {% if sample_data.interaction_stats_rows %}
+          <div class="tbl-wrap">
+            <table class="booktabs">
+              <thead>
+                <tr><th>Metric</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                {{ sample_data.interaction_stats_rows }}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="no-figure">Interaction statistics not available ({{ sample_name }}_interactions.filtered not found).</div>
+          {% endif %}
+        </div>
+      </details>
+
+      {% if sample_data.top_pairs_rows %}
+      <details open>
+        <summary>Top RNA Interaction Pairs</summary>
+        <div class="details-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>RNA 1</th>
+                  <th>RNA 2</th>
+                  <th>Read Support</th>
+                  <th>Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{ sample_data.top_pairs_rows }}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+      {% endif %}
+
+      {% endfor %}
+
+      {% if not per_sample %}
+      <div class="card text-muted text-center">No interaction data available.</div>
+      {% endif %}
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 5. Interaction Network                                            -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="intrxn-network">
+      <h2>Interaction Network</h2>
+      <div class="card">
+        <div class="card-title">Network Overview</div>
+        <p>
+          The interaction network represents all detected RNA–RNA interactions, where nodes are
+          RNA species and edges represent detected interaction events. Edge weight corresponds
+          to the number of supporting read pairs.
+        </p>
+      </div>
+
+      {% for sample_name, sample_data in per_sample.items() %}
+      <h3>Sample: {{ sample_name }}</h3>
+      {% if sample_data.network_figure %}
+      <figure>
+        <img src="{{ sample_data.network_figure }}" alt="Interaction network for {{ sample_name }}" />
+        <figcaption>RNA–RNA interaction network — {{ sample_name }}</figcaption>
+      </figure>
+      {% else %}
+      <div class="no-figure">Interaction network visualization not available for {{ sample_name }}.<br><small>Enable <code>rna_intrxn_visualization</code> in config to generate plots.</small></div>
+      {% endif %}
+      {% endfor %}
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 6. Arc Diagrams (visualization)                                   -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="intrxn-vis">
+      <h2>RNA Interaction Arc Diagrams</h2>
+      <div class="card">
+        <div class="card-title">Arc Diagram Description</div>
+        <p>
+          Arc diagrams display the distribution of interaction sites along RNA molecules.
+          Each arc connects two interacting positions. The height and thickness of arcs
+          reflect the frequency of the interaction. Diagrams are generated by
+          <code>intrxn_specificity_edited.py</code> for configured RNA pairs.
+        </p>
+      </div>
+
+      {% for sample_name, sample_data in per_sample.items() %}
+      <h3>Sample: {{ sample_name }}</h3>
+      {% if sample_data.arc_figures %}
+        {% for fig in sample_data.arc_figures %}
+        <figure>
+          <img src="{{ fig.src }}" alt="{{ fig.caption }}" />
+          <figcaption>{{ fig.caption }}</figcaption>
+        </figure>
+        {% endfor %}
+      {% else %}
+      <div class="no-figure">Arc diagram visualizations not available for {{ sample_name }}.<br><small>Enable and configure <code>rna_intrxn_visualization</code> in config.yaml.</small></div>
+      {% endif %}
+      {% endfor %}
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 7. Output Files                                                   -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="files">
+      <h2>Output Files</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ output_files_rows }}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------- -->
+    <!-- 8. Methods                                                        -->
+    <!-- ---------------------------------------------------------------- -->
+    <section id="methods">
+      <h2>Methods</h2>
+      <div class="card">
+        <div class="card-title">Analysis Pipeline</div>
+        <p>
+          PARIS data were processed using the <strong>EasyOmics PARIS Processing Pipeline</strong>
+          (interaction mode) implemented in Snakemake. The pipeline includes:
+        </p>
+        <ol>
+          <li><strong>Adapter Trimming</strong> – 3′ adapter sequences removed with Trimmomatic; minimum length {{ min_len_3 | default(28) }} nt.</li>
+          <li><strong>Read Deduplication</strong> – PCR duplicates collapsed with <code>readCollapse</code>.</li>
+          <li><strong>5′ Trimming</strong> – HEADCROP (17 nt) and length filtering (min {{ min_len_5 | default(20) }} nt) with Trimmomatic.</li>
+          <li><strong>Quality Control</strong> – Raw and trimmed reads assessed with FastQC; results aggregated with MultiQC.</li>
+          <li><strong>Small RNA Alignment</strong> – Reads mapped to small RNA reference with STAR, unique mapping only (outFilterMultimapNmax=1), chimeric read detection enabled (chimSegmentMin={{ chim_segment_min | default(15) }}).</li>
+          <li><strong>Interaction Assembly</strong> – Chimeric alignments assembled into interaction duplex groups using <code>samPairingCalling</code> (minLen={{ dg_minlen | default(15) }}, minPair={{ dg_minpair | default(2) }}).</li>
+          <li><strong>Interaction Filtering</strong> – Only inter-molecular interactions (different RNA species on each arm) retained.</li>
+          {% if vis_enabled %}
+          <li><strong>Interaction Visualization</strong> – Arc diagrams generated for configured RNA pairs using <code>intrxn_specificity_edited.py</code>.</li>
+          {% endif %}
+        </ol>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-title">Software Versions</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Software</th><th>Version</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Snakemake</td><td>—</td><td>Workflow management</td></tr>
+              <tr><td>FastQC</td><td>—</td><td>Read-level quality control</td></tr>
+              <tr><td>MultiQC</td><td>—</td><td>QC report aggregation</td></tr>
+              <tr><td>Trimmomatic</td><td>0.39</td><td>Adapter &amp; quality trimming</td></tr>
+              <tr><td>STAR</td><td>—</td><td>Small RNA alignment with chimeric detection</td></tr>
+              <tr><td>samPairingCalling</td><td>—</td><td>Interaction duplex group assembly</td></tr>
+              <tr><td>intrxn_specificity</td><td>—</td><td>Interaction arc diagram visualization</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="card-title">References</div>
+        <ol>
+          <li>Lu Z, et al. (2016). RNA Duplex Map in Living Cells Reveals Higher-Order Transcriptome Structure. <em>Cell</em> 165(5):1267–1279.</li>
+          <li>Dobin A, et al. (2013). STAR: ultrafast universal RNA-seq aligner. <em>Bioinformatics</em> 29(1):15–21.</li>
+          <li>Ewels P, et al. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. <em>Bioinformatics</em> 32(19):3047–3048.</li>
+          <li>Bolger AM, et al. (2014). Trimmomatic: a flexible trimmer for Illumina sequence data. <em>Bioinformatics</em> 30(15):2114–2120.</li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================== -->
+  <!-- Right info panel                                                    -->
+  <!-- ================================================================== -->
+  <aside class="info-panel">
+    <h3>Project Info</h3>
+    <div class="meta-item">
+      <div class="meta-label">Report Title</div>
+      <div class="meta-value">{{ report_title }}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Mode</div>
+      <div class="meta-value"><span class="badge badge-info">interaction</span></div>
+    </div>
+    {% if project_id %}
+    <div class="meta-item">
+      <div class="meta-label">Project ID</div>
+      <div class="meta-value">{{ project_id }}</div>
+    </div>
+    {% endif %}
+    <div class="meta-item">
+      <div class="meta-label">Report Date</div>
+      <div class="meta-value">{{ report_date }}</div>
+    </div>
+    {% if author %}
+    <div class="meta-item">
+      <div class="meta-label">Author</div>
+      <div class="meta-value">{{ author }}</div>
+    </div>
+    {% endif %}
+    {% if institution %}
+    <div class="meta-item">
+      <div class="meta-label">Institution</div>
+      <div class="meta-value">{{ institution }}</div>
+    </div>
+    {% endif %}
+    {% if pi_name %}
+    <div class="meta-item">
+      <div class="meta-label">PI</div>
+      <div class="meta-value">{{ pi_name }}</div>
+    </div>
+    {% endif %}
+    <div class="meta-item">
+      <div class="meta-label">Samples</div>
+      <div class="meta-value">{{ num_samples }}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Reference</div>
+      <div class="meta-value">{{ reference_genome | default('—') }}</div>
+    </div>
+    <h3 style="margin-top:16px;">Key Outputs</h3>
+    <div class="meta-item">
+      <div class="meta-label">Interaction Pairs</div>
+      <div class="meta-value">{{ total_interaction_pairs }}</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Unique RNA Pairs</div>
+      <div class="meta-value">{{ total_unique_rna_pairs }}</div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ===================================================================== -->
+<!-- Footer                                                                 -->
+<!-- ===================================================================== -->
+<footer>
+  Report generated by EasyOmics PARIS Pipeline (interaction mode) &mdash; {{ report_date }}
+  &nbsp;|&nbsp; Pipeline mode: <strong>interaction</strong>
+</footer>
+
+</body>
+</html>
