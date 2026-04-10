@@ -10,6 +10,14 @@ MODE = config["mode"]
 LOG_DIR = f"{WORK_DIR}/logs"
 TEMP_DIR = f"{WORK_DIR}/temp"
 
+# Report configuration (with safe defaults)
+REPORT_CFG = config.get("report", {})
+REPORT_ENABLE = REPORT_CFG.get("enable", True)
+REPORT_MODE = REPORT_CFG.get("mode", MODE)
+REPORT_INLINE_IMAGES = REPORT_CFG.get("inline_images", False)
+REPORT_HTML_OUT = REPORT_CFG.get("output_html", f"{WORK_DIR}/report_{MODE}.html")
+REPORT_MD_OUT = REPORT_CFG.get("output_md", f"{WORK_DIR}/report_{MODE}.md")
+
 def raw_fastq(wc):
     return config["raw_files"][wc.sample]
 
@@ -25,12 +33,14 @@ if MODE == "structure":
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES),
             expand(f"{WORK_DIR}/qc/multiqc_report.html", sample=SAMPLES),
+            [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 else:  # interaction
     rule all:
         input:
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_intrxn_visual.done", sample=SAMPLES) if config["rna_intrxn_visualization"]["enabled"] else [],
             expand(f"{WORK_DIR}/qc/multiqc_report.html", sample=SAMPLES),
+            [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 
 ############################################
 # 0) Setup directories
@@ -494,3 +504,34 @@ rule multiqc:
         r"""
         multiqc -o {WORK_DIR}/qc {WORK_DIR} 2>{log}
         """
+
+############################################
+# Report generation (optional, enabled via config report.enable)
+############################################
+if REPORT_ENABLE:
+    rule generate_report:
+        input:
+            multiqc=f"{WORK_DIR}/qc/multiqc_report.html",
+            upstream=(
+                expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES)
+                if MODE == "structure"
+                else expand(f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered", sample=SAMPLES)
+            ),
+        output:
+            html=REPORT_HTML_OUT,
+            md=REPORT_MD_OUT,
+        log:
+            f"{LOG_DIR}/generate_report.log"
+        params:
+            config_file="config.yaml",
+            inline_flag="--inline_images" if REPORT_INLINE_IMAGES else "",
+            script=os.path.join(os.path.dirname(workflow.snakefile), "compile_report.py"),
+        shell:
+            r"""
+            python {params.script} \
+                --config {params.config_file} \
+                --html_out {output.html} \
+                --md_out {output.md} \
+                {params.inline_flag} \
+                2>{log}
+            """

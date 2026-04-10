@@ -447,7 +447,98 @@ The pipeline operates in two distinct modes based on your analysis goals:
         - **Content**: High-confidence RNA-RNA interactions, filtered to include only inter-molecular pairs (rna1 ≠ rna2).
         - **Application**: Primary result for downstream interaction analysis and network visualization.
 
-# Part V Reference
+# Part V Analysis Report
+
+The pipeline can automatically generate HTML and Markdown analysis reports summarising all key
+results after each run. Reports are mode-aware: **structure** mode and **interaction** mode
+produce different sections tailored to their respective outputs.
+
+## Enabling Report Generation
+
+Report generation is controlled by the `report` section in `config.yaml`:
+
+```yaml
+report:
+  enable: true          # Set to false to skip report generation
+  title: "PARIS Analysis Report"
+  author: "Your Name"
+  institution: "Your Institution"
+  pi_name: "PI Name"
+  project_id: "ProjectXYZ"
+  inline_images: false  # true = self-contained offline HTML; false = relative paths
+  # output_html: "/custom/path/report.html"  # optional override
+  # output_md:   "/custom/path/report.md"    # optional override
+```
+
+When `enable: true`, the `generate_report` rule runs automatically after the pipeline
+completes, producing:
+
+| File | Description |
+|------|-------------|
+| `<work_dir>/report_structure.html` | Full HTML report (structure mode) |
+| `<work_dir>/report_structure.md`   | Markdown report (structure mode) |
+| `<work_dir>/report_interaction.html` | Full HTML report (interaction mode) |
+| `<work_dir>/report_interaction.md`   | Markdown report (interaction mode) |
+
+## Structure vs Interaction Mode Report Differences
+
+| Section | Structure Mode | Interaction Mode |
+|---------|---------------|-----------------|
+| Executive Summary KPIs | Samples, mapping rate, duplex groups, alt. structures | Samples, mapping rate, interaction pairs, unique RNA pairs |
+| QC Table | Shared (reads, mapping, chimeric, duplication) | Shared |
+| Results Section 1 | Duplex Group Analysis (DG counts, support stats) | Interaction Analysis (pair counts, top interactors) |
+| Results Section 2 | Structure Visualization (BED viewer) | Top RNA Interaction Pairs table |
+| Results Section 3 | Alternative Structures | Arc Diagram Visualizations |
+| Methods | Structure pipeline steps | Interaction pipeline steps |
+
+## `inline_images` Switch
+
+| Setting | Behaviour |
+|---------|-----------|
+| `inline_images: true`  | All figures are embedded as Base64 data URIs inside the HTML. The `.html` file is fully self-contained — it can be downloaded and opened offline with no external dependencies. |
+| `inline_images: false` | Figures are referenced by relative paths. Suitable for zipped/archived result distributions where the image files are preserved alongside the HTML. |
+
+## Running the Report Script Manually
+
+You can also generate the report independently without re-running the full pipeline:
+
+```bash
+# Generate report for current mode (from config.yaml)
+python compile_report.py --config config.yaml
+
+# Generate with inline images (fully self-contained HTML)
+python compile_report.py --config config.yaml --inline_images
+
+# Override mode explicitly
+python compile_report.py --config config.yaml --mode structure
+
+# Specify custom output paths
+python compile_report.py --config config.yaml \
+    --html_out /path/to/my_report.html \
+    --md_out /path/to/my_report.md
+```
+
+**Dependencies:** `PyYAML` (required). `Jinja2` (optional but recommended; falls back to basic
+`{{key}}` substitution if not available).
+
+```bash
+pip install pyyaml jinja2
+```
+
+## Report Layout
+
+All reports follow the EasyOmics unified visual style:
+
+- **Top navigation bar** – pipeline name and report metadata
+- **Left sidebar** – section navigation links
+- **Main content** – KPI cards, collapsible QC details, results tables, figure panels
+- **Right info panel** – project metadata at a glance
+- **Footer** – generation date and pipeline mode
+
+The **QC table** uses a booktabs-style three-line format (top rule, mid rule, bottom rule,
+no vertical lines) commonly used in scientific publications.
+
+# Part VI Reference
 
 [1] Lu, Z., Gong, J., Zhang, Q.C. (2018). PARIS: Psoralen Analysis of RNA Interactions and Structures with High Throughput and Resolution. In: Gaspar, I. (eds) RNA Detection. Methods in Molecular Biology, vol 1649.
 
