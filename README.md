@@ -453,9 +453,26 @@ The pipeline can automatically generate HTML and Markdown analysis reports summa
 results after each run. Reports are mode-aware: **structure** mode and **interaction** mode
 produce different sections tailored to their respective outputs.
 
+All report-related files live inside the **`Scripts/`** directory:
+
+```
+Scripts/
+├── PARIS.smk              # Snakefile (includes generate_report rule)
+├── config.yaml            # Pipeline + report configuration
+├── compile_report.py      # Standalone report compiler script
+└── templates/
+    ├── PARIS_structure_Report.html
+    ├── PARIS_interaction_Report.html
+    ├── PARIS_structure_Report.md
+    └── PARIS_interaction_Report.md
+```
+
+> **Note:** Run Snakemake from the `Scripts/` directory (or pass `--snakefile Scripts/PARIS.smk
+> --configfile Scripts/config.yaml`) so that relative paths resolve correctly.
+
 ## Enabling Report Generation
 
-Report generation is controlled by the `report` section in `config.yaml`:
+Report generation is controlled by the `report` section in `Scripts/config.yaml`:
 
 ```yaml
 report:
@@ -503,6 +520,9 @@ completes, producing:
 You can also generate the report independently without re-running the full pipeline:
 
 ```bash
+# Run from the Scripts/ directory
+cd Scripts/
+
 # Generate report for current mode (from config.yaml)
 python compile_report.py --config config.yaml
 
