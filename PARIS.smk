@@ -8,12 +8,10 @@ MODE = config["mode"]
 
 # 设置输出目录结构
 LOG_DIR = f"{WORK_DIR}/logs"
-TEMP_DIR = f"{WORK_DIR}/temp"
 
 # Report configuration (with safe defaults)
 REPORT_CFG = config.get("report", {})
 REPORT_ENABLE = REPORT_CFG.get("enable", True)
-REPORT_MODE = REPORT_CFG.get("mode", MODE)
 REPORT_INLINE_IMAGES = REPORT_CFG.get("inline_images", False)
 REPORT_HTML_OUT = REPORT_CFG.get("output_html", f"{WORK_DIR}/report_{MODE}.html")
 REPORT_MD_OUT = REPORT_CFG.get("output_md", f"{WORK_DIR}/report_{MODE}.md")
@@ -27,19 +25,20 @@ def raw_fastq(wc):
 if MODE == "structure":
     rule all:
         input:
+            f"{WORK_DIR}/.setup_done",
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Aligned.sortedByCoord.out.bam", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Aligned.sortedByCoord.out.bam.bai", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_NGmin.sam", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed", sample=SAMPLES),
-            expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES),
-            expand(f"{WORK_DIR}/qc/multiqc_report.html", sample=SAMPLES),
+            expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES) if config["alternative_structure"]["enabled"] else [],
+            f"{WORK_DIR}/qc/multiqc_report.html",
             [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 else:  # interaction
     rule all:
         input:
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_intrxn_visual.done", sample=SAMPLES) if config["rna_intrxn_visualization"]["enabled"] else [],
-            expand(f"{WORK_DIR}/qc/multiqc_report.html", sample=SAMPLES),
+            f"{WORK_DIR}/qc/multiqc_report.html",
             [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 
 ############################################
@@ -51,7 +50,6 @@ rule setup_directories:
     shell:
         r"""
         mkdir -p {WORK_DIR}/logs
-        mkdir -p {WORK_DIR}/temp
         mkdir -p {WORK_DIR}/qc
         """
 
@@ -162,7 +160,7 @@ if MODE == "structure":
             f"{WORK_DIR}/{{sample}}/{{sample}}_trim5.fastq"
         output:
             aligned=f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Aligned.sortedByCoord.out.bam",
-            chim=temp(f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Chimeric.out.sam"),
+            chim=f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Chimeric.out.sam",
             junc=f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Chimeric.out.junction"
         log:
             f"{LOG_DIR}/{{sample}}_star_genome.log"
@@ -208,7 +206,7 @@ else:  # interaction mode
         input:
             f"{WORK_DIR}/{{sample}}/{{sample}}_trim5.fastq"
         output:
-            chim=temp(f"{WORK_DIR}/{{sample}}/{{sample}}_starSmallRNA_Chimeric.out.sam"),
+            chim=f"{WORK_DIR}/{{sample}}/{{sample}}_starSmallRNA_Chimeric.out.sam",
             junc=f"{WORK_DIR}/{{sample}}/{{sample}}_starSmallRNA_Chimeric.out.junction"
         log:
             f"{LOG_DIR}/{{sample}}_star_smallrna.log"
@@ -243,7 +241,7 @@ if MODE == "structure":
         input:
             f"{WORK_DIR}/{{sample}}/{{sample}}_starGenome_Aligned.sortedByCoord.out.bam"
         output:
-            temp(f"{WORK_DIR}/{{sample}}/{{sample}}_Aligned_prim_N.sam")
+            f"{WORK_DIR}/{{sample}}/{{sample}}_Aligned_prim_N.sam"
         log:
             f"{LOG_DIR}/{{sample}}_primary_gapped.log"
         container:
@@ -339,23 +337,23 @@ if MODE == "structure":
             r"""
             python {params.script} {input} {output} {params.opt} 2>{log}
             """
-
-    rule alternative_structure:
-        input:
-            f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed"
-        output:
-            f"{WORK_DIR}/{{sample}}/{{sample}}.alt"
-        log:
-            f"{LOG_DIR}/{{sample}}_alternative_structure.log"
-        params:
-            script=config["paths"]["alternative_structure"],
-            ref=config["paths"]["genome_fa"]
-        container:
-            config["container"]
-        shell:
-            r"""
-            python {params.script} {input} {params.ref} {output} 2>{log}
-            """
+    if config["alternative_structure"]["enabled"]:
+        rule alternative_structure:
+            input:
+                f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed"
+            output:
+                f"{WORK_DIR}/{{sample}}/{{sample}}.alt"
+            log:
+                f"{LOG_DIR}/{{sample}}_alternative_structure.log"
+            params:
+                script=config["paths"]["alternative_structure"],
+                ref=config["paths"]["genome_fa"]
+            container:
+                config["container"]
+            shell:
+                r"""
+                python {params.script} {input} {params.ref} {output} 2>{log}
+                """
 
 ############################################
 # 4) Interaction branch
@@ -492,7 +490,7 @@ rule multiqc:
     input:
         expand(f"{WORK_DIR}/qc/{{sample}}/{{sample}}_fastqc.html", sample=SAMPLES),
         expand(f"{WORK_DIR}/qc/{{sample}}/{{sample}}_trim5_fastqc.html", sample=SAMPLES),
-        expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES) if MODE == "structure" else [],
+        expand(f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed", sample=SAMPLES) if MODE == "structure" else [],
         expand(f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered", sample=SAMPLES) if MODE == "interaction" else [],
     output:
         f"{WORK_DIR}/qc/multiqc_report.html"
