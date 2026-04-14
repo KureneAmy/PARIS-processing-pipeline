@@ -3,55 +3,55 @@
 # Mode: structure or interaction
 # 
 
-mode: "interaction"   # structure / interaction
+mode: "structure"   # structure / interaction
 
 # Sample names
 samples:
-  - SRR2814763_test
+  - SRR2814763
 
 # Raw input files - FASTQ format
 # Pre-processed data should have barcode split already
 # Format: sample_name: "absolute_path_to_fastq.gz"
 raw_files:
-  SRR2814763_test: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/data/SRR2814763_test.fastq.gz"
+  SRR2814763: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/SRR2814763.fastq.gz"
 
 # Singularity container
-container: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/run/paris.sif"
+container: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/paris.sif"
 
 # Absolute paths for all resources
 paths:
   # Work directory
-  work_dir: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/output"
+  work_dir: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/output"
 
   # Adapter sequences
-  adapters_3p: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/data/P6SolexaRC35.fa"
+  adapters_3p: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/P6SolexaRC35.fa"
 
   # STAR indices
-  star_genome_index: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/ref/reference_data/star_genome_index/"
-  star_smallrna_index: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/ref/reference_data/star_genome_index/"
+  star_genome_index: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/reference_data/star_genome_index/"
+  star_smallrna_index: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/reference_data/star_genome_index/"
 
   # Reference files（For structure mode, set genome files; for interaction mode, set smallrna files）
-  genome_fa: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/ref/reference_data/GRCh38.primary_assembly.genome.fa"
-  genome_gtf: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/ref/reference_data/annotation.gtf"
-  chrom_sizes: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/ref/reference_data/GRCh38.chrom.sizes"
+  genome_fa: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/reference_data/GRCh38.primary_assembly.genome.fa"
+  genome_gtf: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/reference_data/annotation.gtf"
+  chrom_sizes: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/reference_data/GRCh38.chrom.sizes"
 
   # Scripts and tools
-  read_collapse: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/icSHAPE-master/bin/readCollapse"
-  samPairingCalling: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/paris-master/samPairingCalling.edited.pl"
-  PARIS_module: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/paris-master/module"
-  PARIS_bin: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/paris-master/bin"
-  sam2ngmin: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/duplex-master/sam2ngmin.py"
-  dg2bed: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/duplex-master/dg2bed.py"
-  alternative_structure: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/duplex-master/alternativestructure.py"
-  generate_rna_config: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/generate_rna_config.py"
-  intrxn_specificity: "/mnt1/4.NAS2025/zhangam/easyomics_test/PARIS/scripts/duplex-master/intrxn_specificity_edited.py"
+  read_collapse: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/icSHAPE-master/bin/readCollapse"
+  samPairingCalling: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/paris-master/samPairingCalling.edited.pl"
+  PARIS_module: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/paris-master/module"
+  PARIS_bin: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/paris-master/bin"
+  sam2ngmin: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/duplex-master/sam2ngmin.py"
+  dg2bed: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/duplex-master/dg2bed.py"
+  alternative_structure: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/duplex-master/alternativestructure_edited.py"
+  generate_rna_config: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/generate_rna_config.py"
+  intrxn_specificity: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/duplex-master/intrxn_specificity_edited.py"
 
 
 # Parameters
 params:
   # Thread settings
   threads: 16
-  star_threads: 8
+  star_threads: 16
 
   # Trimming
   minlen3: 28   # minimum length after 3' trimming
@@ -73,7 +73,13 @@ params:
   # Output format
   dg2bed_option: "bed12"  # bed / bed12 / bed12fixed
   
-  
+
+# RNA Alternative Structure Configuration (structure mode)
+# This section is for predicting alternative RNA structures based on the identified duplex groups.
+# As it takes a long time to run (more than 10 hours per sample), it is disabled by default. To enable, set 'enabled' to true and wait patiently.
+alternative_structure:
+  enabled: false
+
 # RNA Interaction Visualization Configuration (interaction mode)
 # Define RNA pairs to be visualized
 # Each pair contains:
@@ -102,9 +108,6 @@ rna_intrxn_visualization:
 # ├── logs/                          # All log files
 # │   ├── {sample}_*.log
 # │   └── multiqc.log
-# ├── temp/                          # Temporary files (auto-cleanup)
-# │   └── {sample}/
-# │       └── tmp.$$.* (auto-managed)
 # ├── qc/                            # QC reports
 # │   ├── {sample}/
 # │   │   ├── {sample}_fastqc.html
