@@ -254,6 +254,19 @@ The pipeline operates in two distinct modes based on your analysis goals:
               size2: 13357
               label1: "Human 28S rRNA"
               label2: "Human 45S rRNA"
+
+        # Report generation configuration
+		report:
+		  enable: true
+		  script: "/path/to/compile_report.py"
+		  title: "PARIS Analysis Report"
+		  author: ""
+		  institution: ""
+		  pi_name: ""
+		  project_id: ""
+		  inline_images: true   # true → base64-embedded self-contained HTML
+		  template_html: "/path/to/template/PARIS_structure_Report.html"
+		  template_md: "/path/to/template/PARIS_structure_Report.md"
         ```
 
       * **Step 2: Dry-run and dag-make**
