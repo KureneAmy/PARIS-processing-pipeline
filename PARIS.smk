@@ -9,6 +9,15 @@ MODE = config["mode"]
 # 设置输出目录结构
 LOG_DIR = f"{WORK_DIR}/logs"
 
+# Report configuration (with safe defaults)
+REPORT_CFG = config.get("report", {})
+REPORT_ENABLE = REPORT_CFG.get("enable", True)
+REPORT_INLINE_IMAGES = REPORT_CFG.get("inline_images", False)
+REPORT_HTML_TEMPLATE = REPORT_CFG.get("template_html")
+REPORT_MD_TEMPLATE = REPORT_CFG.get("template_md")
+REPORT_HTML_OUT = f"{WORK_DIR}/report/PARIS_{MODE}_Analysis_Report.html"
+REPORT_MD_OUT = f"{WORK_DIR}/report/PARIS_{MODE}_Analysis_Report.md"
+
 def raw_fastq(wc):
     return config["raw_files"][wc.sample]
 
@@ -25,12 +34,14 @@ if MODE == "structure":
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_DG.bed", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}.alt", sample=SAMPLES) if config["alternative_structure"]["enabled"] else [],
             f"{WORK_DIR}/qc/multiqc_report.html",
+            [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 else:  # interaction
     rule all:
         input:
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered", sample=SAMPLES),
             expand(f"{WORK_DIR}/{{sample}}/{{sample}}_intrxn_visual.done", sample=SAMPLES) if config["rna_intrxn_visualization"]["enabled"] else [],
             f"{WORK_DIR}/qc/multiqc_report.html",
+            [REPORT_HTML_OUT, REPORT_MD_OUT] if REPORT_ENABLE else [],
 
 ############################################
 # 0) Setup directories
@@ -434,9 +445,9 @@ if MODE == "interaction":
             input:
                 pregenerated=f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered",
             output:
-                f"{WORK_DIR}/.rna_config.json"
+                f"{WORK_DIR}/{{sample}}/.rna_config.json"
             log:
-                f"{LOG_DIR}/generate_rna_config.log"
+                f"{LOG_DIR}/{{sample}}_generate_rna_config.log"
             params:
                 config_file="config.yaml",
                 script=config["paths"]["generate_rna_config"]
@@ -448,10 +459,8 @@ if MODE == "interaction":
         rule intrxn_visualize_pair:
             input:
                 interactions=f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.filtered",
-                reads=f"{WORK_DIR}/{{sample}}/{{sample}}_interactions.geometric.reads",
-                rna_config=f"{WORK_DIR}/.rna_config.json"
+                rna_config=f"{WORK_DIR}/{{sample}}/.rna_config.json"
             output:
-                report=f"{WORK_DIR}/{{sample}}/plots/visualization_summary.txt",
                 done=f"{WORK_DIR}/{{sample}}/{{sample}}_intrxn_visual.done"
             log:
                 f"{LOG_DIR}/{{sample}}_intrxn_visual.log"
@@ -493,3 +502,37 @@ rule multiqc:
         r"""
         multiqc -o {WORK_DIR}/qc {WORK_DIR} 2>{log}
         """
+
+
+############################################
+# Report generation (optional, enabled via config report.enable)
+############################################
+if REPORT_ENABLE:
+    rule generate_report:
+        input:
+            multiqc=f"{WORK_DIR}/qc/multiqc_report.html",
+        output:
+            html=REPORT_HTML_OUT,
+            md=REPORT_MD_OUT,
+        log:
+            f"{LOG_DIR}/generate_report.log"
+        params:
+            config_file="config.yaml",
+            inline_flag="--inline_images" if REPORT_INLINE_IMAGES else "",
+            script= config["report"]["script"],
+            html_template = REPORT_HTML_TEMPLATE,
+            md_template = REPORT_MD_TEMPLATE,
+        container:
+            config["container"]
+        shell:
+            r"""
+            python {params.script} \
+                --config {params.config_file} \
+                --work_dir {WORK_DIR} \
+                --html_template {params.html_template} \
+                --md_template {params.md_template} \
+                --html_out {output.html} \
+                --md_out {output.md} \
+                {params.inline_flag} \
+                2>{log}
+            """

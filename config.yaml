@@ -125,3 +125,16 @@ rna_intrxn_visualization:
 #     ├── {sample}_NGmin.sam
 #     ├── {sample}_DG.bed
 #     └── {sample}.alt
+
+# Report generation configuration
+report:
+  enable: true
+  script: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/compile_report.py"
+  title: "PARIS Analysis Report"
+  author: ""
+  institution: ""
+  pi_name: ""
+  project_id: ""
+  inline_images: false   # true → base64-embedded self-contained HTML
+  template_html: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/template/PARIS_structure_Report.html"
+  template_md: "/mnt1/4.NAS2025/zhangam/easyomics_test/report/PARIS/Scripts/scripts/template/PARIS_structure_Report.md"
